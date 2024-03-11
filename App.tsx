@@ -1,20 +1,42 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import {useColorScheme} from 'react-native';
+import { ThemeProvider } from 'styled-components';
+import {NavigationContainer} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './source/Components/HomeScreen';
+import StockDataScreen from './source/Components/StockDataScreen';
+import HeaderLogo from './source/Components/HeaderLogo';
+import styles from './theme';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const colorScheme = useColorScheme();
+  console.log(colorScheme)
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ThemeProvider theme={colorScheme === 'dark' ? styles.darkTheme : styles.lightTheme}>
+        <NavigationContainer>
+          <Stack.Navigator 
+          initialRouteName="Home"
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: 'black',
+            },
+            headerTintColor: 'white',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+          >
+            <Stack.Screen name="Home" component={HomeScreen} 
+              options={{ 
+                title: 'Stocks',
+                headerShadowVisible: false,
+                headerTitle: () => <HeaderLogo /> 
+              }}
+            />
+            <Stack.Screen name="Details" component={StockDataScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+    </ThemeProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
