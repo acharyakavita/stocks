@@ -15,7 +15,7 @@ const Logo = styled(Image)`
   width: 40px;
   height: ${props => props.height ? `${props.height}px` : '50px'};
 `;
-
+ 
 function HeaderLogo() {
   const headerHeight = useHeaderHeight();
   console.log(headerHeight)

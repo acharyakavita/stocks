@@ -4,6 +4,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './source/Components/HomeScreen';
 import StockDataScreen from './source/Components/StockDataScreen';
+import ResultsScreen from './source/Components/ResultsScreen';
 import HeaderLogo from './source/Components/HeaderLogo';
 import styles from './theme';
 
@@ -25,13 +26,19 @@ export default function App() {
             headerTitleStyle: {
               fontWeight: 'bold',
             },
+            headerShadowVisible: false,
           }}
           >
             <Stack.Screen name="Home" component={HomeScreen} 
               options={{ 
                 title: 'Stocks',
-                headerShadowVisible: false,
-                headerTitle: () => <HeaderLogo /> 
+                // headerTitle: () => <HeaderLogo /> 
+              }}
+            />
+            <Stack.Screen name="Results" component={ResultsScreen} 
+              options={{ 
+                title: 'Search Results',
+                // headerTitle: () => <HeaderLogo /> 
               }}
             />
             <Stack.Screen name="Details" component={StockDataScreen} />
