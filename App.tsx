@@ -12,7 +12,6 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   const colorScheme = useColorScheme();
-  console.log(colorScheme)
   return (
     <ThemeProvider theme={colorScheme === 'dark' ? styles.darkTheme : styles.lightTheme}>
         <NavigationContainer>
@@ -20,7 +19,7 @@ export default function App() {
           initialRouteName="Home"
           screenOptions={{
             headerStyle: {
-              backgroundColor: 'black',
+              backgroundColor: '#3EB489',
             },
             headerTintColor: 'white',
             headerTitleStyle: {
@@ -32,6 +31,7 @@ export default function App() {
             <Stack.Screen name="Home" component={HomeScreen} 
               options={{ 
                 title: 'Stocks',
+                headerTitleAlign:'left',
                 // headerTitle: () => <HeaderLogo /> 
               }}
             />
