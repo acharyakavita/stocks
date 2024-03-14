@@ -1,96 +1,90 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View,SafeAreaView, Pressable, Platform,Button, TouchableOpacity,TextInput } from 'react-native';
-import { REACT_APP_FIN_MODELING_KEY } from '@env';
-import {styled} from 'styled-components'
-import Icon from 'react-native-vector-icons/FontAwesome';
-import AntIcon from 'react-native-vector-icons/AntDesign';
+import { useState, useEffect } from 'react'
+import {
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  ActivityIndicator,
+  Pressable,
+  Platform,
+  Button,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native'
+import { REACT_APP_FIN_MODELING_KEY, REACT_APP_EODHD_KEY } from '@env'
+import { styled } from 'styled-components'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import AntIcon from 'react-native-vector-icons/AntDesign'
+import { Reanimated } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/reanimatedWrapper'
 
-const SearchBar =styled(TextInput)`
+const SearchBar = styled(TextInput)`
   flex: 1;
   padding: 0 10px 0 10px;
-`;
+`
 
 const SearchBarContainer = styled(View)`
   justify-content: space-between;
   flex-direction: row;
   margin: 20px 10px 20px 10px;
-  height :40px;
+  height: 40px;
   border-radius: 3px;
   border-width: 2px;
   padding: 5px 10px 5px 10px;
-`;
+`
 
-export default function HomeScreen({navigation}:any) {
-  const [searchValue,setSearchValue] = useState('');
-  const [stockSearchData,setStockSearchData] = useState([]);
+export default function HomeScreen({ navigation }: any) {
+  const [searchValue, setSearchValue] = useState('')
+  const [stockSearchData, setStockSearchData] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
-  const onChangeTextHandle = (text:string)=>{
-    setSearchValue(text);
-  } 
-
-  const clearInputHandle = ()=>{
-    setSearchValue('');
+  const onSubmitHandle = async () => {
+    setIsLoading(true)
+    const url = `https://eodhd.com/api/search/${searchValue}?api_token=${REACT_APP_EODHD_KEY}&fmt=json`
+    //fetch(`https://financialmodelingprep.com/api/v3/search?query=${searchValue}&apikey=${REACT_APP_FIN_MODELING_KEY}`)
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => setStockSearchData(data))
+      .catch((e) => {
+        console.error(e)
+      })
   }
-  const onSubmitHandle = async() => {
-    try{
-      const response = await fetch(`https://financialmodelingprep.com/api/v3/search?query=${searchValue}&apikey=${REACT_APP_FIN_MODELING_KEY}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
-      }
-      const data = await response.json();
-      await setStockSearchData(data);
-      navigation.navigate('Results', { stockSearchData });
+  useEffect(() => {
+    if (stockSearchData.length) {
+      setIsLoading(false)
+      setSearchValue('')
+      const resultInputdata = [...stockSearchData]
+      setStockSearchData([])
+      navigation.navigate('Results', { resultInputdata })
     }
-   catch (error) {
-    console.error(error);
-  }
-}
+  }),
+    [stockSearchData]
 
-  //getMovies()
   return (
     <SafeAreaView style={styles.container}>
       <SearchBarContainer>
-      <Icon
-            name="search"
-            size={24}
-            color="#3EB489"
-          />
-       <SearchBar
-        editable
-        maxLength={40}
-        onChangeText={text => onChangeTextHandle(text)}
-        value={searchValue}
-        autoFocus
-        blurOnSubmit
-        placeholder='Search'
-        onSubmitEditing={()=>onSubmitHandle()}
-      />
-      { searchValue.length ? 
-      <TouchableOpacity onPress={()=>clearInputHandle()}>
-      <AntIcon
-            name="closecircle"
-            size={24}
-            color="grey"
-          /> 
-           </TouchableOpacity>
-          :null}
-         
-      {/* <Button  
-        title="Go to ABC Stocks data"
-        onPress={() =>
-          navigation.navigate('Details', {name: 'ABC'})
-        }
-      /> */}
+        <Icon name="search" size={24} color="#3EB489" />
+        <SearchBar
+          onChangeText={(text) => setSearchValue(text)}
+          value={searchValue}
+          autoFocus
+          autoCorrect={false}
+          placeholder="Search"
+          onSubmitEditing={() => onSubmitHandle()}
+        />
+        {searchValue.length ? (
+          <TouchableOpacity onPress={() => setSearchValue('')}>
+            <AntIcon name="closecircle" size={24} color="grey" />
+          </TouchableOpacity>
+        ) : null}
       </SearchBarContainer>
+      {isLoading ? <ActivityIndicator size={'small'} /> : null}
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-});
+})

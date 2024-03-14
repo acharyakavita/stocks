@@ -1,16 +1,16 @@
 const darkTheme = {
-  background: "#1A1A1A",
-  foreground: "#FAFAFA"
-};
+  background: '#1A1A1A',
+  foreground: '#FAFAFA',
+}
 
 const lightTheme = {
-  background: "#FAFAFA",
-  foreground: "#1A1A1A",
-};
+  background: '#FAFAFA',
+  foreground: '#1A1A1A',
+}
 
-const styles={
+const styles = {
   darkTheme,
-  lightTheme
-};
+  lightTheme,
+}
 
-export default styles;
+export default styles
