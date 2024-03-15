@@ -296,8 +296,8 @@ export default function HomeScreen({ navigation }: any) {
           autoFocus
           autoCorrect={false}
           placeholder="Search"
-          //onSubmitEditing={() => onSubmitHandle()}
-          onSubmitEditing={() => tempSubmitHandle()}
+          onSubmitEditing={() => onSubmitHandle()}
+          //onSubmitEditing={() => tempSubmitHandle()}
         />
         {searchValue.length ? (
           <TouchableOpacity onPress={() => setSearchValue('')}>
