@@ -7,6 +7,7 @@ import StockDataScreen from './source/Components/StockDataScreen'
 import ResultsScreen from './source/Components/ResultsScreen'
 import HeaderLogo from './source/Components/HeaderLogo'
 import styles from './theme'
+import FavouritesProvider from './source/Components/FavouritesProvider'
 
 const Stack = createNativeStackNavigator()
 
@@ -16,6 +17,7 @@ export default function App() {
     <ThemeProvider
       theme={colorScheme === 'dark' ? styles.darkTheme : styles.lightTheme}
     >
+      <FavouritesProvider>
       <NavigationContainer>
         <Stack.Navigator
           initialRouteName="Home"
@@ -50,6 +52,7 @@ export default function App() {
           <Stack.Screen name="Details" component={StockDataScreen} />
         </Stack.Navigator>
       </NavigationContainer>
+      </FavouritesProvider>
     </ThemeProvider>
   )
 }

@@ -1,66 +1,117 @@
 import { StatusBar } from 'expo-status-bar'
+import { useContext } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   SafeAreaView,
-  FlatList,
   ScrollView,
+  TouchableOpacity
 } from 'react-native'
-import { REACT_APP_API_KEY } from '@env'
-import { css, styled } from 'styled-components/native'
+import { css, styled } from 'styled-components/native';
+import Icon from 'react-native-vector-icons/FontAwesome6';
+import getSymbolFromCurrency from 'currency-symbol-map';
+import FavouritesProvider from './FavouritesProvider'
+const StyledSafeAreaView = styled(SafeAreaView)`
+    flex:1;
+`;
 
-interface ResultItemContainerProps {
-  firstChild?: boolean
-}
+const ResultItemContainer = styled(View)`
+  ${() => StyleSheet.create({
+    container: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      padding: 10,
+      marginLeft: 15,
+      width: '100%',
+      borderBottomColor: 'grey',
+      flexDirection: 'row'
+    },
+  }).container}
+`;
 
-const ResultItemContainer = styled(View)<ResultItemContainerProps>`
-  padding: 10px;
-  color: white;
-  background-color: #fff;
-  border-top-color: #f5f5dc;
-  border-top-width: 1px;
-  height: 150px;
-  margin-left: 15px;
-  ${(props) =>
-    props.firstChild &&
-    css`{
-      background-color: red;
-    }
-  `}
-`
+const StockCode = styled(Text)`
+  font-size : 16px;
+  font-weight: bold;
+`;
 
-const ResultsDataItem = ({ item, firstChild }) => {
+const Xchg = styled(Text)`
+  font-size : 12px;
+  opacity: 0.5;
+`;
+
+const Currency = styled(Text)`
+  font-size : 12px;
+  opacity: 0.5;
+`;
+
+const Date = styled(Text)`
+  font-size : 12px;
+  opacity: 0.5;
+`;
+
+
+const LeftContainer = styled(View)`
+  width: 60%;
+`;
+
+const RightContainer = styled(View)`
+  width: 30%;
+`;
+
+const AddToFavouritesButton =styled(TouchableOpacity)`
+  margin: 10px 10px 10px 0;
+  width: 10%;
+`;
+
+const ResultsDataItem = ({ item }) => {
+  const currencySymbol= getSymbolFromCurrency(item.Currency);
+  const favoritesContext =useContext(FavouritesProvider.Context);
+  const {addToFavourites,alreadyExistsInFavourites}=favoritesContext;
+  const itemWithCurrencySymbol = {...item,currencySymbol}
+  const alreadyExists = alreadyExistsInFavourites(itemWithCurrencySymbol);
   return (
-    <ResultItemContainer firstChild={firstChild}>
-      <Text>{item.Code}</Text>
-      <Text>{item.Currency}</Text>
-      <Text>{item.previousClose}</Text>
-      <Text>{item.Name}</Text>
-      <Text>{item.Exchange}</Text>
+    <ResultItemContainer>
+      <AddToFavouritesButton onPress={() => addToFavourites(item)} disabled={alreadyExists}>
+        {alreadyExists ? 
+        <Icon name="circle-check" size={22} color={'#3EB489'}/> 
+        : 
+        <Icon name="circle-plus" size={22} color={'#454545'}/>
+        }
+         
+      </AddToFavouritesButton>
+      <LeftContainer>
+        <StockCode>{item.Code}</StockCode>
+        <Text>{item.Name}</Text>
+        <Xchg>XCHG : {item.Exchange}</Xchg>
+      </LeftContainer>
+      <RightContainer>
+        <Text>{currencySymbol}{(item.previousClose).toFixed(2)}</Text>
+        <Currency>{item.Currency}</Currency>
+        <Date>{item.previousCloseDate}</Date>
+      </RightContainer>
     </ResultItemContainer>
   )
 }
+
+
 export default function ResultsScreen({ route }: any) {
-  const { resultInputdata } = route.params
+  const { resultInputData } = route.params
   return (
-    <SafeAreaView style={styles.container}>
+    <StyledSafeAreaView style={styles.container}>
       <ScrollView>
-        {resultInputdata.map((item, index) => (
+        {resultInputData.map((item,index) => (
           <ResultsDataItem
-            key={item.symbol}
+            key={index}
             item={item}
-            firstChild={index === 0}
           />
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </StyledSafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: 'black',
   },
 })
