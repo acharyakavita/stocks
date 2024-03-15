@@ -1,4 +1,4 @@
-import { useState, useEffect,useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import {
   StyleSheet,
   Text,
@@ -32,64 +32,67 @@ const SearchBarContainer = styled(View)`
   padding: 5px 10px 5px 10px;
 `
 
-const MySymbolsHeader =styled(Text)`
+const MySymbolsHeader = styled(Text)`
   font-size: 15px;
   font-weight: bold;
-  color:#3EB489;
-`;
+  color: #3eb489;
+`
 
 const Favourites = styled(View)`
   padding: 5px 10px 5px 10px;
-`;
+`
 
 const FavItemContainer = styled(View)`
-  ${() => StyleSheet.create({
-    container: {
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      padding: 10,
-      width: '100%',
-      borderBottomColor: 'grey',
-      flexDirection: 'row'
-    },
-  }).container}
-`;
-
+  ${() =>
+    StyleSheet.create({
+      container: {
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        padding: 10,
+        width: '100%',
+        borderBottomColor: 'grey',
+        flexDirection: 'row',
+      },
+    }).container}
+`
 
 const StockCode = styled(Text)`
-  font-size : 16px;
+  font-size: 16px;
   font-weight: bold;
-`;
+`
 
 const Xchg = styled(Text)`
-  font-size : 12px;
+  font-size: 12px;
   opacity: 0.5;
-`;
+`
 
 const Currency = styled(Text)`
-  font-size : 12px;
+  font-size: 12px;
   opacity: 0.5;
-`;
+`
 
 const Date = styled(Text)`
-  font-size : 12px;
+  font-size: 12px;
   opacity: 0.5;
-`;
-
+`
 
 const LeftContainer = styled(View)`
   width: 70%;
-`;
+`
 
 const RightContainer = styled(View)`
   width: 30%;
-`;
+`
 
 export default function HomeScreen({ navigation }: any) {
- 
   const [isLoading, setIsLoading] = useState(false)
-  const favoritesContext =useContext(FavouritesProvider.Context);
-  const {stockSearchData, setStockSearchData,searchValue, 
-    setSearchValue,favourites}=favoritesContext;
+  const favoritesContext = useContext(FavouritesProvider.Context)
+  const {
+    stockSearchData,
+    setStockSearchData,
+    searchValue,
+    setSearchValue,
+    favourites,
+  } = favoritesContext
   console.log(favourites)
 
   const onSubmitHandle = async () => {
@@ -103,174 +106,174 @@ export default function HomeScreen({ navigation }: any) {
         console.error(e)
       })
   }
-  const tempSubmitHandle =()=>{
-    const data =[
+  const tempSubmitHandle = () => {
+    const data = [
       {
-          "Code": "MSFT",
-          "Exchange": "US",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "USA",
-          "Currency": "USD",
-          "ISIN": "US5949181045",
-          "previousClose": 415.1,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSFT',
+        Exchange: 'US',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'USA',
+        Currency: 'USD',
+        ISIN: 'US5949181045',
+        previousClose: 415.1,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSFT",
-          "Exchange": "BA",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "Argentina",
-          "Currency": "ARS",
-          "ISIN": "US5949181045",
-          "previousClose": 14593.5,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSFT',
+        Exchange: 'BA',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'Argentina',
+        Currency: 'ARS',
+        ISIN: 'US5949181045',
+        previousClose: 14593.5,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "0QYP",
-          "Exchange": "IL",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "UK",
-          "Currency": "USD",
-          "ISIN": "US5949181045",
-          "previousClose": 415,
-          "previousCloseDate": "2024-03-13"
+        Code: '0QYP',
+        Exchange: 'IL',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'UK',
+        Currency: 'USD',
+        ISIN: 'US5949181045',
+        previousClose: 415,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "0QYP",
-          "Exchange": "LSE",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "UK",
-          "Currency": "USD",
-          "ISIN": "US5949181045",
-          "previousClose": 415,
-          "previousCloseDate": "2024-03-13"
+        Code: '0QYP',
+        Exchange: 'LSE',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'UK',
+        Currency: 'USD',
+        ISIN: 'US5949181045',
+        previousClose: 415,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSF",
-          "Exchange": "XETRA",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "Germany",
-          "Currency": "EUR",
-          "ISIN": "US5949181045",
-          "previousClose": 378.95,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSF',
+        Exchange: 'XETRA',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'Germany',
+        Currency: 'EUR',
+        ISIN: 'US5949181045',
+        previousClose: 378.95,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "3MSF",
-          "Exchange": "LSE",
-          "Name": "Leverage Shares 3x Microsoft ETP Securities GBP",
-          "Type": "ETF",
-          "Country": "UK",
-          "Currency": "GBX",
-          "ISIN": "IE00BK5BZV36",
-          "previousClose": 5742.25,
-          "previousCloseDate": "2024-03-13"
+        Code: '3MSF',
+        Exchange: 'LSE',
+        Name: 'Leverage Shares 3x Microsoft ETP Securities GBP',
+        Type: 'ETF',
+        Country: 'UK',
+        Currency: 'GBX',
+        ISIN: 'IE00BK5BZV36',
+        previousClose: 5742.25,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSFT",
-          "Exchange": "NEO",
-          "Name": "Microsoft Corp CDR",
-          "Type": "Common Stock",
-          "Country": "Canada",
-          "Currency": "CAD",
-          "ISIN": "CA59516M1041",
-          "previousClose": 30.68,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSFT',
+        Exchange: 'NEO',
+        Name: 'Microsoft Corp CDR',
+        Type: 'Common Stock',
+        Country: 'Canada',
+        Currency: 'CAD',
+        ISIN: 'CA59516M1041',
+        previousClose: 30.68,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "2MSF",
-          "Exchange": "LSE",
-          "Name": "Leverage Shares 2x Microsoft ETC A GBP",
-          "Type": "ETF",
-          "Country": "UK",
-          "Currency": "GBX",
-          "ISIN": "IE00BF03XY85",
-          "previousClose": 18670.5,
-          "previousCloseDate": "2024-03-13"
+        Code: '2MSF',
+        Exchange: 'LSE',
+        Name: 'Leverage Shares 2x Microsoft ETC A GBP',
+        Type: 'ETF',
+        Country: 'UK',
+        Currency: 'GBX',
+        ISIN: 'IE00BF03XY85',
+        previousClose: 18670.5,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSFT34",
-          "Exchange": "SA",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "Brazil",
-          "Currency": "BRL",
-          "ISIN": null,
-          "previousClose": 86.12,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSFT34',
+        Exchange: 'SA',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'Brazil',
+        Currency: 'BRL',
+        ISIN: null,
+        previousClose: 86.12,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSF",
-          "Exchange": "F",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "Germany",
-          "Currency": "EUR",
-          "ISIN": "US5949181045",
-          "previousClose": 379.55,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSF',
+        Exchange: 'F',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'Germany',
+        Currency: 'EUR',
+        ISIN: 'US5949181045',
+        previousClose: 379.55,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSFT",
-          "Exchange": "MX",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "Mexico",
-          "Currency": "MXN",
-          "ISIN": null,
-          "previousClose": 6925.3501,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSFT',
+        Exchange: 'MX',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'Mexico',
+        Currency: 'MXN',
+        ISIN: null,
+        previousClose: 6925.3501,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "3SMF",
-          "Exchange": "LSE",
-          "Name": "Leverage Shares 3x Short Microsoft (MSFT) ETP Securities GBP",
-          "Type": "ETF",
-          "Country": "UK",
-          "Currency": "GBX",
-          "ISIN": "XS2472334239",
-          "previousClose": 97.98,
-          "previousCloseDate": "2024-03-13"
+        Code: '3SMF',
+        Exchange: 'LSE',
+        Name: 'Leverage Shares 3x Short Microsoft (MSFT) ETP Securities GBP',
+        Type: 'ETF',
+        Country: 'UK',
+        Currency: 'GBX',
+        ISIN: 'XS2472334239',
+        previousClose: 97.98,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSF",
-          "Exchange": "STU",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "Germany",
-          "Currency": "EUR",
-          "ISIN": "US5949181045",
-          "previousClose": 379.85,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSF',
+        Exchange: 'STU',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'Germany',
+        Currency: 'EUR',
+        ISIN: 'US5949181045',
+        previousClose: 379.85,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSF",
-          "Exchange": "HM",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "Germany",
-          "Currency": "EUR",
-          "ISIN": "US5949181045",
-          "previousClose": 377.55,
-          "previousCloseDate": "2024-03-13"
+        Code: 'MSF',
+        Exchange: 'HM',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'Germany',
+        Currency: 'EUR',
+        ISIN: 'US5949181045',
+        previousClose: 377.55,
+        previousCloseDate: '2024-03-13',
       },
       {
-          "Code": "MSF",
-          "Exchange": "MU",
-          "Name": "Microsoft Corporation",
-          "Type": "Common Stock",
-          "Country": "Germany",
-          "Currency": "EUR",
-          "ISIN": "US5949181045",
-          "previousClose": 379.3,
-          "previousCloseDate": "2024-03-13"
-      }
-  ]
+        Code: 'MSF',
+        Exchange: 'MU',
+        Name: 'Microsoft Corporation',
+        Type: 'Common Stock',
+        Country: 'Germany',
+        Currency: 'EUR',
+        ISIN: 'US5949181045',
+        previousClose: 379.3,
+        previousCloseDate: '2024-03-13',
+      },
+    ]
     setStockSearchData(data)
   }
 
@@ -307,23 +310,26 @@ export default function HomeScreen({ navigation }: any) {
       </SearchBarContainer>
       {isLoading ? <ActivityIndicator size={'small'} /> : null}
       <Favourites>
-      <MySymbolsHeader>My Symbols</MySymbolsHeader>
-      {favourites.map((item,index)=>{
-        return(
-        <FavItemContainer key={index}>
-        <LeftContainer>
-          <StockCode>{item.Code}</StockCode>
-          <Text>{item.Name}</Text>
-          <Xchg>XCHG : {item.Exchange}</Xchg>
-        </LeftContainer>
-        <RightContainer>
-          <Text>{item.currencySymbol}{(item.previousClose).toFixed(2)}</Text>
-          <Currency>{item.Currency}</Currency>
-          <Date>{item.previousCloseDate}</Date>
-        </RightContainer>
-      </FavItemContainer>
-      )}
-      )}
+        <MySymbolsHeader>My Symbols</MySymbolsHeader>
+        {favourites.map((item, index) => {
+          return (
+            <FavItemContainer key={index}>
+              <LeftContainer>
+                <StockCode>{item.Code}</StockCode>
+                <Text>{item.Name}</Text>
+                <Xchg>XCHG : {item.Exchange}</Xchg>
+              </LeftContainer>
+              <RightContainer>
+                <Text>
+                  {item.currencySymbol}
+                  {item.previousClose.toFixed(2)}
+                </Text>
+                <Currency>{item.Currency}</Currency>
+                <Date>{item.previousCloseDate}</Date>
+              </RightContainer>
+            </FavItemContainer>
+          )
+        })}
       </Favourites>
     </SafeAreaView>
   )

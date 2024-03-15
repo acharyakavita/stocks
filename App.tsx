@@ -18,40 +18,40 @@ export default function App() {
       theme={colorScheme === 'dark' ? styles.darkTheme : styles.lightTheme}
     >
       <FavouritesProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: '#3EB489',
-            },
-            headerTintColor: 'white',
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-            headerShadowVisible: false,
-          }}
-        >
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              title: 'Stocks',
-              headerTitleAlign: 'left',
-              // headerTitle: () => <HeaderLogo />
+        <NavigationContainer>
+          <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: '#3EB489',
+              },
+              headerTintColor: 'white',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+              headerShadowVisible: false,
             }}
-          />
-          <Stack.Screen
-            name="Results"
-            component={ResultsScreen}
-            options={{
-              title: 'Search Results',
-              // headerTitle: () => <HeaderLogo />
-            }}
-          />
-          <Stack.Screen name="Details" component={StockDataScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+          >
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                title: 'Stocks',
+                headerTitleAlign: 'left',
+                // headerTitle: () => <HeaderLogo />
+              }}
+            />
+            <Stack.Screen
+              name="Results"
+              component={ResultsScreen}
+              options={{
+                title: 'Search Results',
+                // headerTitle: () => <HeaderLogo />
+              }}
+            />
+            <Stack.Screen name="Details" component={StockDataScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </FavouritesProvider>
     </ThemeProvider>
   )
