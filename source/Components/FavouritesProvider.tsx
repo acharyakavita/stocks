@@ -9,7 +9,7 @@ function FavouritesProvider({ children }) {
 
   const alreadyExistsInFavourites = (item) => {
     return favourites.some(function (el) {
-      return el.Code === item.Code && el.Exchange === item.Exchange
+      return el.symbol === item.symbol && el.exchange === item.exchange
     })
   }
   const addToFavourites = (item) => {

@@ -11,7 +11,13 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native'
-import { REACT_APP_FIN_MODELING_KEY, REACT_APP_EODHD_KEY } from '@env'
+import {
+  REACT_APP_ALPHA,
+  REACT_APP_YAHOO,
+  REACT_APP_YAHOO2,
+  REACT_APP_EODHD_KEY,
+  REACT_APP_API_KEY,
+} from '@env'
 import { styled } from 'styled-components'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import AntIcon from 'react-native-vector-icons/AntDesign'
@@ -93,18 +99,46 @@ export default function HomeScreen({ navigation }: any) {
     setSearchValue,
     favourites,
   } = favoritesContext
-  console.log(favourites)
 
   const onSubmitHandle = async () => {
     setIsLoading(true)
-    const url = `https://eodhd.com/api/search/${searchValue}?api_token=${REACT_APP_EODHD_KEY}&fmt=json`
-    //fetch(`https://financialmodelingprep.com/api/v3/search?query=${searchValue}&apikey=${REACT_APP_FIN_MODELING_KEY}`)
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => setStockSearchData(data))
-      .catch((e) => {
-        console.error(e)
-      })
+
+    try {
+      //const url = `https://eodhd.com/api/search/${searchValue}?api_token=${REACT_APP_EODHD_KEY}&fmt=json`
+      const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${searchValue}&
+    quotesCount=5&newsCount=0&enableFuzzyQuery=true`
+      //fetch(`https://financialmodelingprep.com/api/v3/search?query=${searchValue}&apikey=${REACT_APP_FIN_MODELING_KEY}`)
+      // const url = `https://finnhub.io/api/v1/search?q=${searchValue}&token=${REACT_APP_API_KEY}`
+      const response1 = await fetch(url)
+      const data = await response1.json()
+      if (data && data.quotes && data.quotes.length) {
+        const items = data.quotes.map((item) => item.symbol)
+
+        const apiCallPromises = items.map((item, index) => {
+          // const url =`https://query1.finance.yahoo.com/v7/finance/quote?&symbols=${item}&fields=currency,fromCurrency,toCurrency,
+          // exchangeTimezoneName,exchangeTimezoneShortName,gmtOffSetMilliseconds,regularMarketChange,regularMarketChangePercent,
+          // regularMarketPrice,regularMarketTime,preMarketTime,postMarketTime,extendedMarketTime&crumb=${crumb}`
+          if (index % 2 === 0) {
+            return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
+              method: 'GET',
+              headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
+            })
+          } else {
+            return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
+              method: 'GET',
+              headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
+            })
+          }
+        })
+
+        const response2 = await Promise.all(apiCallPromises)
+        const prices = await Promise.all(response2.map((item) => item.json()))
+        const newData = prices.map((item) => item.quoteResponse.result[0])
+        setStockSearchData(newData)
+      }
+    } catch (error) {
+      console.log(error)
+    }
   }
   const tempSubmitHandle = () => {
     const data = [
@@ -283,11 +317,13 @@ export default function HomeScreen({ navigation }: any) {
       setSearchValue('')
       const resultInputData = [...stockSearchData]
       setStockSearchData([])
-      console.log(resultInputData)
       navigation.navigate('Results', { resultInputData })
     }
-  }),
-    [stockSearchData]
+  }, [stockSearchData])
+
+  const stockDetailsHandler = (stockItem: any) => {
+    navigation.navigate('Details', { stockItem })
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -313,21 +349,26 @@ export default function HomeScreen({ navigation }: any) {
         <MySymbolsHeader>My Symbols</MySymbolsHeader>
         {favourites.map((item, index) => {
           return (
-            <FavItemContainer key={index}>
-              <LeftContainer>
-                <StockCode>{item.Code}</StockCode>
-                <Text>{item.Name}</Text>
-                <Xchg>XCHG : {item.Exchange}</Xchg>
-              </LeftContainer>
-              <RightContainer>
-                <Text>
-                  {item.currencySymbol}
-                  {item.previousClose.toFixed(2)}
-                </Text>
-                <Currency>{item.Currency}</Currency>
-                <Date>{item.previousCloseDate}</Date>
-              </RightContainer>
-            </FavItemContainer>
+            <TouchableOpacity
+              onPress={() => stockDetailsHandler(item)}
+              key={index}
+            >
+              <FavItemContainer>
+                <LeftContainer>
+                  <StockCode>{item.symbol}</StockCode>
+                  <Text>{item.longName}</Text>
+                  <Xchg>XCHG : {item.exchange}</Xchg>
+                </LeftContainer>
+                <RightContainer>
+                  <Text>
+                    {item.currencySymbol}
+                    {item.regularMarketPrice}
+                  </Text>
+                  <Currency>{item.currency}</Currency>
+                  {/* <Date>{item.previousCloseDate}</Date> */}
+                </RightContainer>
+              </FavItemContainer>
+            </TouchableOpacity>
           )
         })}
       </Favourites>

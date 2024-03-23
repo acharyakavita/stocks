@@ -1,5 +1,5 @@
-import { StatusBar } from 'expo-status-bar'
 import { useContext } from 'react'
+import { useNavigation } from '@react-navigation/native'
 import {
   StyleSheet,
   Text,
@@ -64,42 +64,51 @@ const AddToFavouritesButton = styled(TouchableOpacity)`
 `
 
 const ResultsDataItem = ({ item }) => {
-  const currencySymbol = getSymbolFromCurrency(item.Currency)
+  const currencySymbol = getSymbolFromCurrency(item.currency)
   const favoritesContext = useContext(FavouritesProvider.Context)
   const { addToFavourites, alreadyExistsInFavourites } = favoritesContext
   const itemWithCurrencySymbol = { ...item, currencySymbol }
   const alreadyExists = alreadyExistsInFavourites(itemWithCurrencySymbol)
+  const navigation = useNavigation()
   return (
-    <ResultItemContainer>
-      <AddToFavouritesButton
-        onPress={() => addToFavourites(item)}
-        disabled={alreadyExists}
-      >
-        {alreadyExists ? (
-          <Icon name="circle-check" size={22} color={'#3EB489'} />
-        ) : (
-          <Icon name="circle-plus" size={22} color={'#454545'} />
-        )}
-      </AddToFavouritesButton>
-      <LeftContainer>
-        <StockCode>{item.Code}</StockCode>
-        <Text>{item.Name}</Text>
-        <Xchg>XCHG : {item.Exchange}</Xchg>
-      </LeftContainer>
-      <RightContainer>
-        <Text>
-          {currencySymbol}
-          {item.previousClose.toFixed(2)}
-        </Text>
-        <Currency>{item.Currency}</Currency>
-        <Date>{item.previousCloseDate}</Date>
-      </RightContainer>
-    </ResultItemContainer>
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate('Details', { stockItem: itemWithCurrencySymbol })
+      }
+    >
+      <ResultItemContainer>
+        <AddToFavouritesButton
+          onPress={() => addToFavourites(itemWithCurrencySymbol)}
+          disabled={alreadyExists}
+        >
+          {alreadyExists ? (
+            <Icon name="circle-check" size={22} color={'#3EB489'} />
+          ) : (
+            <Icon name="circle-plus" size={22} color={'#454545'} />
+          )}
+        </AddToFavouritesButton>
+
+        <LeftContainer>
+          <StockCode>{item.symbol}</StockCode>
+          <Text>{item.longName}</Text>
+          <Xchg>XCHG : {item.exchange}</Xchg>
+        </LeftContainer>
+        <RightContainer>
+          <Text>
+            {currencySymbol}
+            {item.regularMarketPrice}
+          </Text>
+          <Currency>{item.currency}</Currency>
+          <Date>{item.previousCloseDate}</Date>
+        </RightContainer>
+      </ResultItemContainer>
+    </TouchableOpacity>
   )
 }
 
 export default function ResultsScreen({ route }: any) {
   const { resultInputData } = route.params
+  console.log(resultInputData)
   return (
     <StyledSafeAreaView style={styles.container}>
       <ScrollView>

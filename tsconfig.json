@@ -5,6 +5,8 @@
     "typeRoots": ["./src/types/env.d.ts"],
     "paths": {
       "@env": ["/node_modules/react-native-dotenv"]
-    }
+    },
+    "target": "ES6",
+    "lib": ["es6", "dom"]
   }
 }
