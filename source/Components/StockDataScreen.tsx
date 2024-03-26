@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   ScrollView,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native'
 import {
   CartesianChart,
@@ -26,8 +27,51 @@ import {
 import inter from '../../assets/inter-medium.ttf'
 import { AnimatedText } from './AnimatedText'
 import { format } from 'date-fns'
-import { REACT_APP_FIN_MODELING_KEY, REACT_APP_ALPHA } from '@env'
+import styled, { css } from 'styled-components'
+import { TouchableHighlight } from 'react-native-gesture-handler'
 
+const Name = styled(Text)`
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px;
+  color: #3eb489;
+`
+
+const Price = styled(Text)`
+  font-size: 14px;
+  font-weight: bold;
+  margin: 10px;
+  color: rgba(0, 0, 0, 0.62);
+`
+
+const Currency = styled(Text)`
+  font-size: 10px;
+  font-weight: 300;
+`
+
+const MarketChange = styled(Text)`
+  color: ${(props) => (props.price < 0 ? '#d93025' : '#188038')};
+  font-size: 14px;
+  font-weight: 400;
+`
+
+const Scroll = styled(ScrollView)`
+  max-height: 30px;
+  margin: 10px;
+  /* &.active {
+    color: #3eb489;
+  } */
+`
+const Button = styled(TouchableOpacity)`
+  padding-right: 20px;
+`
+
+const ButtonText = styled(Text)`
+  color: ${(props) => (props.isButtonActive ? 'blue' : 'black')};
+  font-weight: ${(props) => (props.isButtonActive ? 600 : 400)};
+`
+
+const RANGE = ['1D', '5D', '1MO', '3MO', '6MO', 'YTD', '1Y', '2Y', '5Y', 'MAX']
 function ToolTip({
   xPosition,
   yPosition,
@@ -82,7 +126,6 @@ function ToolTip({
 }
 
 const StockArea = ({ points }: { points: PointsArray }) => {
-  console.log(points[0])
   const { path: linePath } = useLinePath(points)
   const animPath = useAnimatedPath(linePath)
   return (
@@ -105,135 +148,186 @@ const MONTHS = [
   'Dec',
 ]
 
-const formatDate = (ms: number) => {
-  'worklet'
-  const date = new Date(ms)
-  const M = MONTHS[date.getMonth()]
-  const D = date.getDate()
-  const Y = date.getFullYear()
-  return `${M} ${D}, ${Y}`
+const formatXLabel = (time, activeTimeRange) => {
+  switch (activeTimeRange) {
+    case '1D':
+      return format(time * 1000, 'HH:mm')
+    case '5D':
+      return format(time * 1000, 'eee')
+    case '1MO':
+      return new Date(time * 1000).getDate().toLocaleString()
+    case '3MO':
+    case '6MO':
+    case 'YTD':
+    case '1Y':
+    case '2Y':
+      return format(time * 1000, 'MMM')
+    case '5Y':
+    case 'MAX':
+      return format(time * 1000, 'yyyy')
+  }
 }
-
 export default function StockDataScreen({ route }: any) {
   const { stockItem } = route.params
-
   const { state, isActive } = useChartPressState({ x: 0, y: { price: 0 } })
-  const [chartData, setChartdata] = useState({})
+  const [activeTimeRange, setActiveTimeRange] = useState(RANGE[0])
+  const [chartData, setChartData] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+  const font = useFont(inter, 12)
+
+  const formatDate = (ms: number) => {
+    'worklet'
+    const date = new Date(ms * 1000)
+    const M = MONTHS[date.getMonth()]
+    const D = date.getDate()
+    const Y = date.getFullYear()
+    var hour = date.getHours()
+    var min = date.getMinutes()
+    return `${M} ${D}, ${Y} - ${hour}:${min}`
+  }
+  // Active date display
+  const activeDate = useDerivedValue(() => formatDate(state.x.value.value))
+  // Active high display
+  const activePrice = useDerivedValue(() => {
+    if (!isActive) return '—'
+    else return stockItem.currencySymbol + state.y.price.value.value.toFixed(2)
+  })
+
   useEffect(() => {
     setIsLoading(true)
-    // const currentDate:Date = new global.Date();
-    // currentDate.setHours(0, 0, 0, 0);
-    // const startofTheDayTimestamp = currentDate.getTime() / 1000;
-    // const currentTimeStamp = Math.floor( new global.Date().getTime() / 1000);
+    let interval
+    switch (activeTimeRange) {
+      case '1D':
+        interval = '2m'
+        break
+      case '5D':
+        interval = '15m'
+        break
+      case '1MO':
+        interval = '30m'
+        break
+      case '3MO':
+        interval = '1d'
+        break
+      case '6MO':
+        interval = '1d'
+        break
+      case 'YTD':
+        interval = '1wk'
+        break
+      case '1Y':
+        interval = '1mo'
+        break
+      case '2Y':
+        interval = '1mo'
+        break
+      case '5Y':
+        interval = '1mo'
+        break
+      case 'MAX':
+        interval = '1mo'
+        break
+    }
+
     //const url=`https://query1.finance.yahoo.com/v7/finance/chart/${stockItem.Code}.IL?period1=${startofTheDayTimestamp}&period2=${currentTimeStamp}&interval=5m&events=history&includeAdjustedClose=true`
-    //const url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${item.Code}&interval=5min&outputsize=compact&apikey=${REACT_APP_ALPHA}`;
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${stockItem.symbol}?interval=2m&range=1d`
-    console.log(url)
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${stockItem.symbol}?interval=${interval}&range=${activeTimeRange.toLocaleLowerCase()}`
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
         if (data && data.chart && data.chart.result && data.chart.result[0]) {
-          const chartData = {
-            data: getData(data),
-            //   time: data.chart.result[0].timestamp.map((date) =>
-            //   {
-            //     const resultDate = new Date(date * 1000)
-            //     const hour = resultDate.getHours();
-            //     const min = resultDate.getMinutes();
-            //     return `${hour}:${min}`;
-            //   }),
-            //   price: data.chart.result[0].indicators.quote[0].close.map((price) => parseFloat(price).toFixed(2)),
-            // ,
+          const formattedInput = []
+          data.chart.result[0].timestamp.forEach((date, index) => {
+            if (data.chart.result[0].indicators.quote[0].close[index] && date) {
+              const obj = {}
+              obj['time'] = date
+              obj['price'] = parseFloat(
+                data.chart.result[0].indicators.quote[0].close[index].toFixed(2)
+              )
+              formattedInput.push(obj)
+            }
+          })
+
+          const chartDump = {
+            data: formattedInput,
             labelX: 'time',
             labelY: 'price',
+            metaData: data.chart.result[0].meta,
           }
-          // console.log(chartData.data)
-          setChartdata(chartData)
-
-          function getData(data) {
-            const formattedInput = []
-            data.chart.result[0].timestamp.forEach((date, index) => {
-              if (
-                data.chart.result[0].indicators.quote[0].close[index] &&
-                date
-              ) {
-                const obj = {}
-                // const resultDate = new Date(date * 1000)
-                // const hour = resultDate.getHours();
-                // const min = resultDate.getMinutes();
-                obj['time'] = date
-                obj['price'] = parseFloat(
-                  data.chart.result[0].indicators.quote[0].close[index].toFixed(
-                    2
-                  )
-                )
-                formattedInput.push(obj)
-              }
-            })
-            return formattedInput
-          }
+          const oldData = chartData
+          setChartData({ ...chartData, ...chartDump })
         }
       })
       .then(() => setIsLoading(false))
       .catch((e) => {
         console.error(e)
       })
-  }, [])
-  const font = useFont(inter, 12)
-  // Active date display
-  const activeDate = useDerivedValue(() => formatDate(state.x.value.value))
+  }, [activeTimeRange])
 
-  // Active high display
-  const activeHigh = useDerivedValue(() => {
-    if (!isActive) return '—'
-    else return '$' + state.y.price.value.value.toFixed(2)
-  })
-  console.log(state)
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ flex: 2, maxHeight: 500, marginBottom: 20 }}>
         {isLoading ? <ActivityIndicator size={'small'} /> : null}
         {chartData && chartData.data ? (
-          <CartesianChart
-            data={chartData.data}
-            chartPressState={[state]}
-            xKey={chartData.labelX}
-            yKeys={[chartData.labelY]}
-            curve="linear"
-            axisOptions={{
-              font,
-              tickCount: 5,
-              labelOffset: { x: 12, y: 8 },
-              labelPosition: { x: 'outset', y: 'inset' },
-              axisSide: { x: 'bottom', y: 'left' },
-              formatXLabel: (time) => format(new Date(time * 1000), 'HH:mm'),
-              formatYLabel: (v) => `${stockItem.currencySymbol}${v}`,
-              lineColor: '#3EB489',
-              labelColor: 'black',
-            }}
-            renderOutside={({ chartBounds }) => (
-              <>
-                {isActive && (
-                  <ToolTip
-                    xPosition={state.x.position}
-                    yPosition={state.y.price.position}
-                    bottom={chartBounds.bottom}
-                    top={chartBounds.top}
-                    activeValue={state.y.price.value}
-                    textColor={'black'}
-                    lineColor={'#454546'}
-                    indicatorColor={'navy'}
-                  />
-                )}
-              </>
-            )}
-          >
-            {({ points }) => <StockArea points={points.price} />}
-          </CartesianChart>
+          <>
+            <Name>
+              {stockItem.longName}({stockItem.symbol})
+            </Name>
+            <Price>
+              {stockItem.regularMarketPrice}
+              <Currency> {stockItem.currency} </Currency>
+              <MarketChange price={stockItem.regularMarketChange}>
+                ({stockItem.regularMarketChangePercent.toFixed(2)} %)
+              </MarketChange>
+            </Price>
+            <Scroll horizontal={true}>
+              {RANGE.map((time, index) => (
+                <Button onPress={() => setActiveTimeRange(time)} key={index}>
+                  <ButtonText isButtonActive={activeTimeRange === time}>
+                    {time}
+                  </ButtonText>
+                </Button>
+              ))}
+            </Scroll>
+            <CartesianChart
+              data={chartData.data}
+              chartPressState={[state]}
+              xKey={chartData.labelX}
+              yKeys={[chartData.labelY]}
+              curve="linear"
+              axisOptions={{
+                font,
+                tickCount: 5,
+                labelOffset: { x: 12, y: 8 },
+                labelPosition: { x: 'outset', y: 'inset' },
+                axisSide: { x: 'bottom', y: 'left' },
+                formatXLabel: (time) => formatXLabel(time, activeTimeRange),
+                formatYLabel: (v) => `${stockItem.currencySymbol}${v}`,
+                lineColor: '#3EB489',
+                labelColor: 'black',
+              }}
+              renderOutside={({ chartBounds }) => (
+                <>
+                  {isActive && (
+                    <ToolTip
+                      xPosition={state.x.position}
+                      yPosition={state.y.price.position}
+                      bottom={chartBounds.bottom}
+                      top={chartBounds.top}
+                      activeValue={state.y.price.value}
+                      textColor={'black'}
+                      lineColor={'#454546'}
+                      indicatorColor={'navy'}
+                    />
+                  )}
+                </>
+              )}
+            >
+              {({ points }) => <StockArea points={points.price} />}
+            </CartesianChart>
+          </>
         ) : null}
       </View>
-      {/* <ScrollView
+      <ScrollView
         style={styles.optionsScrollView}
         contentContainerStyle={styles.options}
       >
@@ -241,10 +335,10 @@ export default function StockDataScreen({ route }: any) {
           style={{
             paddingBottom: 16,
             paddingTop: 0,
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: 'center',
+            justifyContent: 'center',
             height: 80,
-            width: "100%",
+            width: '100%',
           }}
         >
           <>
@@ -256,12 +350,12 @@ export default function StockDataScreen({ route }: any) {
               }}
             />
             <AnimatedText
-              text={activeHigh}
-              style={{ fontSize: 24, fontWeight: "bold", color: 'black' }}
+              text={activePrice}
+              style={{ fontSize: 24, fontWeight: 'bold', color: 'black' }}
             />
           </>
         </View>
-      </ScrollView> */}
+      </ScrollView>
     </SafeAreaView>
   )
 }
@@ -270,7 +364,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     height: 300,
-    margin: 10,
+    margin: 20,
     paddingHorizontal: 20,
     paddingVertical: 15,
   },

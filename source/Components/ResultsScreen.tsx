@@ -108,7 +108,6 @@ const ResultsDataItem = ({ item }) => {
 
 export default function ResultsScreen({ route }: any) {
   const { resultInputData } = route.params
-  console.log(resultInputData)
   return (
     <StyledSafeAreaView style={styles.container}>
       <ScrollView>

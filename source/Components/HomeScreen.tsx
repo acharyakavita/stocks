@@ -121,12 +121,12 @@ export default function HomeScreen({ navigation }: any) {
           if (index % 2 === 0) {
             return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
               method: 'GET',
-              headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
+              headers: { 'X-Api-Key': REACT_APP_YAHOO },
             })
           } else {
             return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
               method: 'GET',
-              headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
+              headers: { 'X-Api-Key': REACT_APP_YAHOO },
             })
           }
         })
