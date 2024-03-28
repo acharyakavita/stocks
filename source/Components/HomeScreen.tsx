@@ -22,6 +22,8 @@ import { styled } from 'styled-components'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import AntIcon from 'react-native-vector-icons/AntDesign'
 import FavouritesProvider from './FavouritesProvider'
+import getSymbolFromCurrency from 'currency-symbol-map'
+import SwipeableButton from './SwipeableButton'
 
 const SearchBar = styled(TextInput)`
   flex: 1;
@@ -98,6 +100,8 @@ export default function HomeScreen({ navigation }: any) {
     searchValue,
     setSearchValue,
     favourites,
+    storage,
+    setFavourites,
   } = favoritesContext
 
   const onSubmitHandle = async () => {
@@ -113,24 +117,16 @@ export default function HomeScreen({ navigation }: any) {
       const data = await response1.json()
       if (data && data.quotes && data.quotes.length) {
         const items = data.quotes.map((item) => item.symbol)
-
-        const apiCallPromises = items.map((item, index) => {
+        const apiCallPromises = items.map((item) => {
           // const url =`https://query1.finance.yahoo.com/v7/finance/quote?&symbols=${item}&fields=currency,fromCurrency,toCurrency,
           // exchangeTimezoneName,exchangeTimezoneShortName,gmtOffSetMilliseconds,regularMarketChange,regularMarketChangePercent,
           // regularMarketPrice,regularMarketTime,preMarketTime,postMarketTime,extendedMarketTime&crumb=${crumb}`
-          if (index % 2 === 0) {
+        
             return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
               method: 'GET',
-              headers: { 'X-Api-Key': REACT_APP_YAHOO },
+              headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
             })
-          } else {
-            return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
-              method: 'GET',
-              headers: { 'X-Api-Key': REACT_APP_YAHOO },
-            })
-          }
         })
-
         const response2 = await Promise.all(apiCallPromises)
         const prices = await Promise.all(response2.map((item) => item.json()))
         const newData = prices.map((item) => item.quoteResponse.result[0])
@@ -139,176 +135,6 @@ export default function HomeScreen({ navigation }: any) {
     } catch (error) {
       console.log(error)
     }
-  }
-  const tempSubmitHandle = () => {
-    const data = [
-      {
-        Code: 'MSFT',
-        Exchange: 'US',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'USA',
-        Currency: 'USD',
-        ISIN: 'US5949181045',
-        previousClose: 415.1,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSFT',
-        Exchange: 'BA',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'Argentina',
-        Currency: 'ARS',
-        ISIN: 'US5949181045',
-        previousClose: 14593.5,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: '0QYP',
-        Exchange: 'IL',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'UK',
-        Currency: 'USD',
-        ISIN: 'US5949181045',
-        previousClose: 415,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: '0QYP',
-        Exchange: 'LSE',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'UK',
-        Currency: 'USD',
-        ISIN: 'US5949181045',
-        previousClose: 415,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSF',
-        Exchange: 'XETRA',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'Germany',
-        Currency: 'EUR',
-        ISIN: 'US5949181045',
-        previousClose: 378.95,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: '3MSF',
-        Exchange: 'LSE',
-        Name: 'Leverage Shares 3x Microsoft ETP Securities GBP',
-        Type: 'ETF',
-        Country: 'UK',
-        Currency: 'GBX',
-        ISIN: 'IE00BK5BZV36',
-        previousClose: 5742.25,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSFT',
-        Exchange: 'NEO',
-        Name: 'Microsoft Corp CDR',
-        Type: 'Common Stock',
-        Country: 'Canada',
-        Currency: 'CAD',
-        ISIN: 'CA59516M1041',
-        previousClose: 30.68,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: '2MSF',
-        Exchange: 'LSE',
-        Name: 'Leverage Shares 2x Microsoft ETC A GBP',
-        Type: 'ETF',
-        Country: 'UK',
-        Currency: 'GBX',
-        ISIN: 'IE00BF03XY85',
-        previousClose: 18670.5,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSFT34',
-        Exchange: 'SA',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'Brazil',
-        Currency: 'BRL',
-        ISIN: null,
-        previousClose: 86.12,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSF',
-        Exchange: 'F',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'Germany',
-        Currency: 'EUR',
-        ISIN: 'US5949181045',
-        previousClose: 379.55,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSFT',
-        Exchange: 'MX',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'Mexico',
-        Currency: 'MXN',
-        ISIN: null,
-        previousClose: 6925.3501,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: '3SMF',
-        Exchange: 'LSE',
-        Name: 'Leverage Shares 3x Short Microsoft (MSFT) ETP Securities GBP',
-        Type: 'ETF',
-        Country: 'UK',
-        Currency: 'GBX',
-        ISIN: 'XS2472334239',
-        previousClose: 97.98,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSF',
-        Exchange: 'STU',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'Germany',
-        Currency: 'EUR',
-        ISIN: 'US5949181045',
-        previousClose: 379.85,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSF',
-        Exchange: 'HM',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'Germany',
-        Currency: 'EUR',
-        ISIN: 'US5949181045',
-        previousClose: 377.55,
-        previousCloseDate: '2024-03-13',
-      },
-      {
-        Code: 'MSF',
-        Exchange: 'MU',
-        Name: 'Microsoft Corporation',
-        Type: 'Common Stock',
-        Country: 'Germany',
-        Currency: 'EUR',
-        ISIN: 'US5949181045',
-        previousClose: 379.3,
-        previousCloseDate: '2024-03-13',
-      },
-    ]
-    setStockSearchData(data)
   }
 
   useEffect(() => {
@@ -320,6 +146,36 @@ export default function HomeScreen({ navigation }: any) {
       navigation.navigate('Results', { resultInputData })
     }
   }, [stockSearchData])
+
+  useEffect(() => {
+    console.log("omg")
+    async function fetchAPI() {
+    const key = storage.getString('favourites');
+    if(key ){
+      const favouriteItems  =JSON.parse(key);
+      if(favouriteItems.length){
+        setIsLoading(true)
+      const apiCallPromises = favouriteItems.map((item) => {
+          return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
+            method: 'GET',
+            headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
+          })
+      })
+      const response2 = await Promise.all(apiCallPromises)
+      const prices = await Promise.all(response2.map((item) => item.json()))
+      console.log(response2,prices)
+      const newData = prices.map((item) => {
+        if(item.quoteResponse.result[0]){
+          const currencySymbol = getSymbolFromCurrency(item.quoteResponse.result[0].currency)
+          return { ...item.quoteResponse.result[0], currencySymbol }}
+        })
+      setFavourites(newData)
+      setIsLoading(false)
+    }
+  }
+}
+fetchAPI()
+  }, [])
 
   const stockDetailsHandler = (stockItem: any) => {
     navigation.navigate('Details', { stockItem })
@@ -336,9 +192,8 @@ export default function HomeScreen({ navigation }: any) {
           autoCorrect={false}
           placeholder="Search"
           onSubmitEditing={() => onSubmitHandle()}
-          //onSubmitEditing={() => tempSubmitHandle()}
         />
-        {searchValue.length ? (
+        {searchValue && searchValue.length ? (
           <TouchableOpacity onPress={() => setSearchValue('')}>
             <AntIcon name="closecircle" size={24} color="grey" />
           </TouchableOpacity>
@@ -372,6 +227,7 @@ export default function HomeScreen({ navigation }: any) {
           )
         })}
       </Favourites>
+      <SwipeableButton/>
     </SafeAreaView>
   )
 }

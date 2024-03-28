@@ -28,7 +28,6 @@ import inter from '../../assets/inter-medium.ttf'
 import { AnimatedText } from './AnimatedText'
 import { format } from 'date-fns'
 import styled, { css } from 'styled-components'
-import { TouchableHighlight } from 'react-native-gesture-handler'
 
 const Name = styled(Text)`
   font-size: 16px;
@@ -69,6 +68,17 @@ const Button = styled(TouchableOpacity)`
 const ButtonText = styled(Text)`
   color: ${(props) => (props.isButtonActive ? 'blue' : 'black')};
   font-weight: ${(props) => (props.isButtonActive ? 600 : 400)};
+`
+
+const MarketDataView = styled(View)`
+  padding: 10px 10px 10px 10px;
+  border-right-width: 1px;
+  border-right-color: grey;
+`
+const ItemView = styled(View)`
+  justify-content: space-between;
+  flex-direction: row;
+  width: 200px;
 `
 
 const RANGE = ['1D', '5D', '1MO', '3MO', '6MO', 'YTD', '1Y', '2Y', '5Y', 'MAX']
@@ -183,10 +193,18 @@ export default function StockDataScreen({ route }: any) {
     const Y = date.getFullYear()
     var hour = date.getHours()
     var min = date.getMinutes()
-    return `${M} ${D}, ${Y} - ${hour}:${min}`
+    if (hour > 0) {
+      return `${M} ${D}, ${Y} - ${hour}:${min}`
+    } else {
+      return `${M} ${D}, ${Y}`
+    }
   }
   // Active date display
-  const activeDate = useDerivedValue(() => formatDate(state.x.value.value))
+  const activeDate = useDerivedValue(() => {
+    if (!isActive) return ''
+    return formatDate(state.x.value.value)
+  })
+
   // Active high display
   const activePrice = useDerivedValue(() => {
     if (!isActive) return '—'
@@ -253,8 +271,7 @@ export default function StockDataScreen({ route }: any) {
             labelY: 'price',
             metaData: data.chart.result[0].meta,
           }
-          const oldData = chartData
-          setChartData({ ...chartData, ...chartDump })
+          setChartData({ ...chartDump })
         }
       })
       .then(() => setIsLoading(false))
@@ -333,11 +350,11 @@ export default function StockDataScreen({ route }: any) {
       >
         <View
           style={{
-            paddingBottom: 16,
+            paddingBottom: 10,
             paddingTop: 0,
             alignItems: 'center',
             justifyContent: 'center',
-            height: 80,
+            height: 30,
             width: '100%',
           }}
         >
@@ -345,16 +362,67 @@ export default function StockDataScreen({ route }: any) {
             <AnimatedText
               text={activeDate}
               style={{
-                fontSize: 16,
+                fontSize: 14,
                 color: 'black',
               }}
             />
             <AnimatedText
               text={activePrice}
-              style={{ fontSize: 24, fontWeight: 'bold', color: 'black' }}
+              style={{ fontSize: 14, fontWeight: 'bold', color: 'black' }}
             />
           </>
         </View>
+        <ScrollView horizontal contentContainerStyle={styles.contentContainer}>
+          <MarketDataView>
+            <ItemView>
+              <Text>Previous Close : </Text>
+              <Text>{stockItem.regularMarketPreviousClose}</Text>
+            </ItemView>
+            <ItemView>
+              <Text>Bid : </Text>
+              <Text>{stockItem.bid} </Text>
+            </ItemView>
+            <ItemView>
+              <Text>Ask : </Text><Text>{stockItem.ask}</Text>
+              
+            </ItemView>
+            <ItemView>
+              <Text>Open : </Text>
+              <Text>{stockItem.regularMarketOpen}</Text>
+            </ItemView>
+          </MarketDataView>
+          <MarketDataView>
+            <ItemView>
+              <Text>High : </Text>
+              <Text>{stockItem.regularMarketDayHigh}</Text>
+            </ItemView>
+            <ItemView>
+              <Text>Low : </Text>
+              <Text>{stockItem.regularMarketDayLow}</Text>
+            </ItemView>
+            <ItemView>
+              <Text>Volume : </Text>
+              <Text>{stockItem.regularMarketVolume}</Text>
+            </ItemView>
+            <ItemView>
+              <Text>Mkt Cap : </Text>
+              <Text>
+           
+      {stockItem.marketCap} 
+    </Text>
+            </ItemView>
+          </MarketDataView>
+          <MarketDataView>
+            <ItemView>
+              <Text>52 Week High : </Text>
+              <Text>{stockItem.fiftyTwoWeekHigh}</Text>
+            </ItemView>
+            <ItemView>
+              <Text>52 Week Low : </Text>
+              <Text>{stockItem.fiftyTwoWeekLow}</Text>
+            </ItemView>
+          </MarketDataView>
+        </ScrollView>
       </ScrollView>
     </SafeAreaView>
   )
@@ -379,5 +447,9 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+  },
+  contentContainer: {
+    padding: 10,
+    paddingLeft: 0,
   },
 })
