@@ -5,11 +5,9 @@ import {
   View,
   SafeAreaView,
   ActivityIndicator,
-  Pressable,
-  Platform,
-  Button,
   TouchableOpacity,
   TextInput,
+  I18nManager,
 } from 'react-native'
 import { REACT_APP_YAHOO, REACT_APP_YAHOO2 } from '@env'
 import { styled } from 'styled-components'
@@ -17,7 +15,11 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import AntIcon from 'react-native-vector-icons/AntDesign'
 import FavouritesProvider from './FavouritesProvider'
 import getSymbolFromCurrency from 'currency-symbol-map'
-import SwipeableButton from './SwipeableButton'
+import SwipeableRow from './SwipeableRow'
+import { RectButton } from 'react-native-gesture-handler'
+
+//  To toggle LTR/RTL change to `true`
+I18nManager.allowRTL(false)
 
 const SearchBar = styled(TextInput)`
   flex: 1;
@@ -88,89 +90,82 @@ const RightContainer = styled(View)`
 export default function HomeScreen({ navigation }: any) {
   const [isLoading, setIsLoading] = useState(false)
   const favoritesContext = useContext(FavouritesProvider.Context)
-  const {
-    stockSearchData,
-    setStockSearchData,
-    searchValue,
-    setSearchValue,
-    favourites,
-    storage,
-    setFavourites,
-  } = favoritesContext
-
-  const onSubmitHandle = async () => {
-    setIsLoading(true)
-
-    try {
-      //const url = `https://eodhd.com/api/search/${searchValue}?api_token=${REACT_APP_EODHD_KEY}&fmt=json`
-      const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${searchValue}&
-    quotesCount=5&newsCount=0&enableFuzzyQuery=true`
-      //fetch(`https://financialmodelingprep.com/api/v3/search?query=${searchValue}&apikey=${REACT_APP_FIN_MODELING_KEY}`)
-      // const url = `https://finnhub.io/api/v1/search?q=${searchValue}&token=${REACT_APP_API_KEY}`
-      const response1 = await fetch(url)
-      const data = await response1.json()
-      if (data && data.quotes && data.quotes.length) {
-        const items = data.quotes.map((item) => item.symbol)
-        const apiCallPromises = items.map((item) => {
-          // const url =`https://query1.finance.yahoo.com/v7/finance/quote?&symbols=${item}&fields=currency,fromCurrency,toCurrency,
-          // exchangeTimezoneName,exchangeTimezoneShortName,gmtOffSetMilliseconds,regularMarketChange,regularMarketChangePercent,
-          // regularMarketPrice,regularMarketTime,preMarketTime,postMarketTime,extendedMarketTime&crumb=${crumb}`
-
-          return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
-            method: 'GET',
-            headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
-          })
-        })
-        const response2 = await Promise.all(apiCallPromises)
-        const prices = await Promise.all(response2.map((item) => item.json()))
-        const newData = prices.map((item) => item.quoteResponse.result[0])
-        setStockSearchData(newData)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  useEffect(() => {
-    if (stockSearchData.length) {
-      setIsLoading(false)
-      setSearchValue('')
-      const resultInputData = [...stockSearchData]
-      setStockSearchData([])
-      navigation.navigate('Results', { resultInputData })
-    }
-  }, [stockSearchData])
+  const { searchValue, setSearchValue, favourites, storage, setFavourites } =
+    favoritesContext
 
   useEffect(() => {
     async function fetchAPI() {
       const key = storage.getString('favourites')
       if (key) {
         const favouriteItems = JSON.parse(key)
+        console.log(favouriteItems)
         if (favouriteItems.length) {
           setIsLoading(true)
-          const apiCallPromises = favouriteItems.map((item) => {
-            return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
-              method: 'GET',
-              headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
-            })
-          })
-          const response2 = await Promise.all(apiCallPromises)
-          const prices = await Promise.all(response2.map((item) => item.json()))
-          const newData = prices.map((item) => {
-            if (item.quoteResponse.result[0]) {
-              const currencySymbol = getSymbolFromCurrency(
-                item.quoteResponse.result[0].currency
+
+          try {
+            const apiCallPromises = favouriteItems.map((item) => {
+              return fetch(
+                `https://yfapi.net/v6/finance/quote?symbols=${item}`,
+                {
+                  method: 'GET',
+                  headers: { 'X-Api-Key': REACT_APP_YAHOO },
+                }
               )
-              return { ...item.quoteResponse.result[0], currencySymbol }
-            }
-          })
-          setFavourites(newData)
-          setIsLoading(false)
+            })
+            const response = await Promise.all(apiCallPromises)
+            const prices = await Promise.all(
+              response.map((item) => item.json())
+            )
+            const data = prices.map((item) => {
+              if (item.quoteResponse.result[0]) {
+                const currencySymbol = getSymbolFromCurrency(
+                  item.quoteResponse.result[0].currency
+                )
+                return { ...item.quoteResponse.result[0], currencySymbol }
+              }
+            })
+            setFavourites(data)
+            setIsLoading(false)
+          } catch (e) {
+            console.log(e)
+          }
         }
       }
     }
     fetchAPI()
   }, [])
+
+  const onSubmitHandle = async () => {
+    setIsLoading(true)
+
+    try {
+      const url = `https://query1.finance.yahoo.com/v1/finance/search?q=${searchValue}&
+    quotesCount=5&newsCount=0&enableFuzzyQuery=true`
+      const response1 = await fetch(url)
+      const data = await response1.json()
+      if (data && data.quotes && data.quotes.length) {
+        const items = data.quotes.map((item) => item.symbol)
+        const apiCallPromises = items.map((item) => {
+          return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
+            method: 'GET',
+            headers: { 'X-Api-Key': REACT_APP_YAHOO },
+          })
+        })
+        const response = await Promise.all(apiCallPromises)
+        const prices = await Promise.all(response.map((item) => item.json()))
+        const resultInputData = prices.map(
+          (item) => item.quoteResponse.result[0]
+        )
+        if (resultInputData.length) {
+          setIsLoading(false)
+          setSearchValue('')
+          navigation.navigate('Results', { resultInputData })
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const stockDetailsHandler = (stockItem: any) => {
     navigation.navigate('Details', { stockItem })
@@ -196,33 +191,35 @@ export default function HomeScreen({ navigation }: any) {
       </SearchBarContainer>
       {isLoading ? <ActivityIndicator size={'small'} /> : null}
       <Favourites>
-        <MySymbolsHeader>My Symbols</MySymbolsHeader>
+        <MySymbolsHeader>My Stocks</MySymbolsHeader>
         {favourites.map((item, index) => {
           return (
-            <TouchableOpacity
-              onPress={() => stockDetailsHandler(item)}
-              key={index}
-            >
-              <FavItemContainer>
-                <LeftContainer>
-                  <StockCode>{item.symbol}</StockCode>
-                  <Text>{item.longName}</Text>
-                  <Xchg>XCHG : {item.exchange}</Xchg>
-                </LeftContainer>
-                <RightContainer>
-                  <Text>
-                    {item.currencySymbol}
-                    {item.regularMarketPrice}
-                  </Text>
-                  <Currency>{item.currency}</Currency>
-                  {/* <Date>{item.previousCloseDate}</Date> */}
-                </RightContainer>
-              </FavItemContainer>
-            </TouchableOpacity>
+            <SwipeableRow item={item} key={index}>
+              <RectButton
+                onPress={() =>
+                  navigation.navigate('Details', { stockItem: item })
+                }
+              >
+                <FavItemContainer>
+                  <LeftContainer>
+                    <StockCode>{item.symbol}</StockCode>
+                    <Text>{item.longName}</Text>
+                    <Xchg>XCHG : {item.exchange}</Xchg>
+                  </LeftContainer>
+                  <RightContainer>
+                    <Text>
+                      {item.currencySymbol}
+                      {item.regularMarketPrice}
+                    </Text>
+                    <Currency>{item.currency}</Currency>
+                    {/* <Date>{item.previousCloseDate}</Date> */}
+                  </RightContainer>
+                </FavItemContainer>
+              </RectButton>
+            </SwipeableRow>
           )
         })}
       </Favourites>
-      <SwipeableButton />
     </SafeAreaView>
   )
 }

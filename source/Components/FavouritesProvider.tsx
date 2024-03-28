@@ -6,13 +6,11 @@ import { MMKV } from 'react-native-mmkv'
 function FavouritesProvider({ children }) {
   const storage = new MMKV()
   const [favourites, setFavourites] = useState([])
-  const [stockSearchData, setStockSearchData] = useState([])
   const [searchValue, setSearchValue] = useState('')
-  const [symbols, setSymbols] = useState([])
 
   const alreadyExistsInFavourites = (item) => {
     return favourites.some(function (el) {
-      return el.symbol === item.symbol && el.exchange === item.exchange
+      return el.symbol === item.symbol
     })
   }
   const addToFavourites = (item) => {
@@ -24,38 +22,46 @@ function FavouritesProvider({ children }) {
     }
     if (!favouritesKey.includes(item.symbol)) {
       favouritesKey.push(item.symbol)
-      setSymbols(favouritesKey)
     }
     const arrayString = JSON.stringify(favouritesKey)
     storage.set('favourites', arrayString)
+  }
+
+  const deleteFromFavourites = (item) => {
+    setFavourites((favourites) =>
+      favourites.filter((el) => el.symbol !== item.symbol)
+    )
+    const key = storage.getString('favourites')
+    let favouritesKey = []
+    if (key) {
+      favouritesKey = JSON.parse(key)
+      const index = favouritesKey.indexOf(item.symbol)
+      favouritesKey.splice(index, 1)
+      const arrayString = JSON.stringify(favouritesKey)
+      storage.set('favourites', arrayString)
+    }
   }
 
   const value = useMemo(
     () => ({
       favourites,
       setFavourites,
-      stockSearchData,
-      setStockSearchData,
       searchValue,
       setSearchValue,
       addToFavourites,
       alreadyExistsInFavourites,
       storage,
-      symbols,
-      setSymbols,
+      deleteFromFavourites,
     }),
     [
       favourites,
       setFavourites,
-      stockSearchData,
-      setStockSearchData,
       searchValue,
       setSearchValue,
       addToFavourites,
       alreadyExistsInFavourites,
       storage,
-      symbols,
-      setSymbols,
+      deleteFromFavourites,
     ]
   )
 

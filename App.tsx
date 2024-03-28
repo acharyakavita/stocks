@@ -5,7 +5,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import HomeScreen from './source/Components/HomeScreen'
 import StockDataScreen from './source/Components/StockDataScreen'
 import ResultsScreen from './source/Components/ResultsScreen'
-import HeaderLogo from './source/Components/HeaderLogo'
 import styles from './theme'
 import FavouritesProvider from './source/Components/FavouritesProvider'
 import { AppRegistry } from 'react-native'
@@ -41,7 +40,6 @@ export default function App() {
                 options={{
                   title: 'Stocks',
                   headerTitleAlign: 'left',
-                  // headerTitle: () => <HeaderLogo />
                 }}
               />
               <Stack.Screen
@@ -49,7 +47,6 @@ export default function App() {
                 component={ResultsScreen}
                 options={{
                   title: 'Search Results',
-                  // headerTitle: () => <HeaderLogo />
                 }}
               />
               <Stack.Screen name="Details" component={StockDataScreen} />
