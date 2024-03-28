@@ -11,13 +11,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native'
-import {
-  REACT_APP_ALPHA,
-  REACT_APP_YAHOO,
-  REACT_APP_YAHOO2,
-  REACT_APP_EODHD_KEY,
-  REACT_APP_API_KEY,
-} from '@env'
+import { REACT_APP_YAHOO, REACT_APP_YAHOO2 } from '@env'
 import { styled } from 'styled-components'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import AntIcon from 'react-native-vector-icons/AntDesign'
@@ -121,11 +115,11 @@ export default function HomeScreen({ navigation }: any) {
           // const url =`https://query1.finance.yahoo.com/v7/finance/quote?&symbols=${item}&fields=currency,fromCurrency,toCurrency,
           // exchangeTimezoneName,exchangeTimezoneShortName,gmtOffSetMilliseconds,regularMarketChange,regularMarketChangePercent,
           // regularMarketPrice,regularMarketTime,preMarketTime,postMarketTime,extendedMarketTime&crumb=${crumb}`
-        
-            return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
-              method: 'GET',
-              headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
-            })
+
+          return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
+            method: 'GET',
+            headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
+          })
         })
         const response2 = await Promise.all(apiCallPromises)
         const prices = await Promise.all(response2.map((item) => item.json()))
@@ -148,33 +142,34 @@ export default function HomeScreen({ navigation }: any) {
   }, [stockSearchData])
 
   useEffect(() => {
-    console.log("omg")
     async function fetchAPI() {
-    const key = storage.getString('favourites');
-    if(key ){
-      const favouriteItems  =JSON.parse(key);
-      if(favouriteItems.length){
-        setIsLoading(true)
-      const apiCallPromises = favouriteItems.map((item) => {
-          return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
-            method: 'GET',
-            headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
+      const key = storage.getString('favourites')
+      if (key) {
+        const favouriteItems = JSON.parse(key)
+        if (favouriteItems.length) {
+          setIsLoading(true)
+          const apiCallPromises = favouriteItems.map((item) => {
+            return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
+              method: 'GET',
+              headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
+            })
           })
-      })
-      const response2 = await Promise.all(apiCallPromises)
-      const prices = await Promise.all(response2.map((item) => item.json()))
-      console.log(response2,prices)
-      const newData = prices.map((item) => {
-        if(item.quoteResponse.result[0]){
-          const currencySymbol = getSymbolFromCurrency(item.quoteResponse.result[0].currency)
-          return { ...item.quoteResponse.result[0], currencySymbol }}
-        })
-      setFavourites(newData)
-      setIsLoading(false)
+          const response2 = await Promise.all(apiCallPromises)
+          const prices = await Promise.all(response2.map((item) => item.json()))
+          const newData = prices.map((item) => {
+            if (item.quoteResponse.result[0]) {
+              const currencySymbol = getSymbolFromCurrency(
+                item.quoteResponse.result[0].currency
+              )
+              return { ...item.quoteResponse.result[0], currencySymbol }
+            }
+          })
+          setFavourites(newData)
+          setIsLoading(false)
+        }
+      }
     }
-  }
-}
-fetchAPI()
+    fetchAPI()
   }, [])
 
   const stockDetailsHandler = (stockItem: any) => {
@@ -227,7 +222,7 @@ fetchAPI()
           )
         })}
       </Favourites>
-      <SwipeableButton/>
+      <SwipeableButton />
     </SafeAreaView>
   )
 }

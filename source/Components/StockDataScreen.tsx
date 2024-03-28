@@ -383,8 +383,8 @@ export default function StockDataScreen({ route }: any) {
               <Text>{stockItem.bid} </Text>
             </ItemView>
             <ItemView>
-              <Text>Ask : </Text><Text>{stockItem.ask}</Text>
-              
+              <Text>Ask : </Text>
+              <Text>{stockItem.ask}</Text>
             </ItemView>
             <ItemView>
               <Text>Open : </Text>
@@ -406,10 +406,7 @@ export default function StockDataScreen({ route }: any) {
             </ItemView>
             <ItemView>
               <Text>Mkt Cap : </Text>
-              <Text>
-           
-      {stockItem.marketCap} 
-    </Text>
+              <Text>{stockItem.marketCap}</Text>
             </ItemView>
           </MarketDataView>
           <MarketDataView>

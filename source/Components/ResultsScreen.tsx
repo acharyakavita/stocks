@@ -12,7 +12,7 @@ import { css, styled } from 'styled-components/native'
 import Icon from 'react-native-vector-icons/FontAwesome6'
 import getSymbolFromCurrency from 'currency-symbol-map'
 import FavouritesProvider from './FavouritesProvider'
-import Swipeable from 'react-native-gesture-handler/Swipeable';
+import Swipeable from 'react-native-gesture-handler/Swipeable'
 
 const StyledSafeAreaView = styled(SafeAreaView)`
   flex: 1;
