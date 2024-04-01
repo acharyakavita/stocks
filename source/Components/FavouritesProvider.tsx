@@ -1,20 +1,32 @@
 import React, { useMemo, useState } from 'react'
+import { MMKV, NativeMMKV } from 'react-native-mmkv'
+import { StockItemObject } from './types'
 
-const Context = React.createContext({})
-import { MMKV } from 'react-native-mmkv'
+export interface ContextType {
+  favourites: StockItemObject[]
+  setFavourites: React.Dispatch<React.SetStateAction<StockItemObject[]>>
+  searchValue: string
+  setSearchValue: React.Dispatch<React.SetStateAction<string>>
+  addToFavourites: (item: StockItemObject) => void
+  alreadyExistsInFavourites: (item: StockItemObject) => boolean
+  storage: NativeMMKV
+  deleteFromFavourites: (item: StockItemObject) => void
+}
 
-function FavouritesProvider({ children }) {
-  const storage = new MMKV()
-  const [favourites, setFavourites] = useState([])
-  const [searchValue, setSearchValue] = useState('')
+const Context = React.createContext<ContextType | null>(null)
+function FavouritesProvider({ children }: any) {
+  const storage: NativeMMKV = new MMKV()
+  const [favourites, setFavourites] = useState<StockItemObject[]>([])
+  const [searchValue, setSearchValue] = useState<string>('')
 
-  const alreadyExistsInFavourites = (item) => {
-    return favourites.some(function (el) {
+  const alreadyExistsInFavourites = (item: StockItemObject) => {
+    return favourites.some(function (el: StockItemObject) {
       return el.symbol === item.symbol
     })
   }
-  const addToFavourites = (item) => {
-    setFavourites([...favourites, item])
+  const addToFavourites = (item: StockItemObject) => {
+    const newFav: StockItemObject[] = [...favourites, item]
+    setFavourites(newFav)
     const key = storage.getString('favourites')
     let favouritesKey = []
     if (key) {
@@ -27,7 +39,7 @@ function FavouritesProvider({ children }) {
     storage.set('favourites', arrayString)
   }
 
-  const deleteFromFavourites = (item) => {
+  const deleteFromFavourites = (item: StockItemObject) => {
     setFavourites((favourites) =>
       favourites.filter((el) => el.symbol !== item.symbol)
     )

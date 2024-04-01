@@ -11,8 +11,8 @@ import {
 import { css, styled } from 'styled-components/native'
 import Icon from 'react-native-vector-icons/FontAwesome6'
 import getSymbolFromCurrency from 'currency-symbol-map'
-import FavouritesProvider from './FavouritesProvider'
-import Swipeable from 'react-native-gesture-handler/Swipeable'
+import FavouritesProvider, { ContextType } from './FavouritesProvider'
+import { StockItemObject } from './types'
 
 const StyledSafeAreaView = styled(SafeAreaView)`
   flex: 1;
@@ -65,11 +65,13 @@ const AddToFavouritesButton = styled(TouchableOpacity)`
   width: 10%;
 `
 
-const ResultsDataItem = ({ item }) => {
+const ResultsDataItem = (props: any) => {
+  const item: StockItemObject = props.item
   const currencySymbol = getSymbolFromCurrency(item.currency)
   const favoritesContext = useContext(FavouritesProvider.Context)
-  const { addToFavourites, alreadyExistsInFavourites } = favoritesContext
-  const itemWithCurrencySymbol = { ...item, currencySymbol }
+  const { addToFavourites, alreadyExistsInFavourites } =
+    favoritesContext as ContextType
+  const itemWithCurrencySymbol: StockItemObject = { ...item, currencySymbol }
   const alreadyExists = alreadyExistsInFavourites(itemWithCurrencySymbol)
   const navigation = useNavigation()
   return (
@@ -113,7 +115,7 @@ export default function ResultsScreen({ route }: any) {
   return (
     <StyledSafeAreaView style={styles.container}>
       <ScrollView>
-        {resultInputData.map((item, index) => (
+        {resultInputData.map((item: StockItemObject, index: number) => (
           <ResultsDataItem key={index} item={item} />
         ))}
       </ScrollView>

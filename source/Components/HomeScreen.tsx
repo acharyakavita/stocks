@@ -13,10 +13,12 @@ import { REACT_APP_YAHOO, REACT_APP_YAHOO2 } from '@env'
 import { styled } from 'styled-components'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import AntIcon from 'react-native-vector-icons/AntDesign'
-import FavouritesProvider from './FavouritesProvider'
+import FavouritesProvider, { ContextType } from './FavouritesProvider'
 import getSymbolFromCurrency from 'currency-symbol-map'
 import SwipeableRow from './SwipeableRow'
 import { RectButton } from 'react-native-gesture-handler'
+import { StackNavigationProp } from '@react-navigation/stack'
+import { RootStackParamList, StockSearchItem, StockItemObject } from './types'
 
 //  To toggle LTR/RTL change to `true`
 I18nManager.allowRTL(false)
@@ -87,9 +89,13 @@ const RightContainer = styled(View)`
   width: 30%;
 `
 
-export default function HomeScreen({ navigation }: any) {
+interface HomeScreenProps {
+  navigation: StackNavigationProp<RootStackParamList, 'Home'>
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const favoritesContext = useContext(FavouritesProvider.Context)
+  const favoritesContext = useContext(FavouritesProvider.Context) as ContextType
   const { searchValue, setSearchValue, favourites, storage, setFavourites } =
     favoritesContext
 
@@ -98,12 +104,11 @@ export default function HomeScreen({ navigation }: any) {
       const key = storage.getString('favourites')
       if (key) {
         const favouriteItems = JSON.parse(key)
-        console.log(favouriteItems)
         if (favouriteItems.length) {
           setIsLoading(true)
 
           try {
-            const apiCallPromises = favouriteItems.map((item) => {
+            const apiCallPromises = favouriteItems.map((item: string) => {
               return fetch(
                 `https://yfapi.net/v6/finance/quote?symbols=${item}`,
                 {
@@ -144,8 +149,9 @@ export default function HomeScreen({ navigation }: any) {
       const response1 = await fetch(url)
       const data = await response1.json()
       if (data && data.quotes && data.quotes.length) {
-        const items = data.quotes.map((item) => item.symbol)
-        const apiCallPromises = items.map((item) => {
+        console.log('search result ', data.quotes)
+        const items = data.quotes.map((item: StockSearchItem) => item.symbol)
+        const apiCallPromises = items.map((item: string) => {
           return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
             method: 'GET',
             headers: { 'X-Api-Key': REACT_APP_YAHOO },
@@ -157,6 +163,7 @@ export default function HomeScreen({ navigation }: any) {
           (item) => item.quoteResponse.result[0]
         )
         if (resultInputData.length) {
+          console.log('quote', resultInputData)
           setIsLoading(false)
           setSearchValue('')
           navigation.navigate('Results', { resultInputData })
@@ -165,10 +172,6 @@ export default function HomeScreen({ navigation }: any) {
     } catch (error) {
       console.log(error)
     }
-  }
-
-  const stockDetailsHandler = (stockItem: any) => {
-    navigation.navigate('Details', { stockItem })
   }
 
   return (
@@ -230,3 +233,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 })
+
+export default HomeScreen

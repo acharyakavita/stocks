@@ -247,7 +247,6 @@ export default function StockDataScreen({ route }: any) {
         break
     }
 
-    //const url=`https://query1.finance.yahoo.com/v7/finance/chart/${stockItem.Code}.IL?period1=${startofTheDayTimestamp}&period2=${currentTimeStamp}&interval=5m&events=history&includeAdjustedClose=true`
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${stockItem.symbol}?interval=${interval}&range=${activeTimeRange.toLocaleLowerCase()}`
     fetch(url)
       .then((response) => response.json())
@@ -446,7 +445,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   contentContainer: {
-    padding: 10,
-    paddingLeft: 0,
+    paddingVertical: 10,
+    paddingHorizontal: 0,
   },
 })

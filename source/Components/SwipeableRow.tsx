@@ -1,13 +1,21 @@
-import React, { useContext, PropsWithChildren } from 'react'
+import React, { useContext } from 'react'
 import { Animated, StyleSheet, Text, View, I18nManager } from 'react-native'
 
 import { RectButton } from 'react-native-gesture-handler'
 
 import Swipeable from 'react-native-gesture-handler/Swipeable'
-import FavouritesProvider from './FavouritesProvider'
+import FavouritesProvider, { ContextType } from './FavouritesProvider'
+import { StockItemObject } from './types'
 
-const SwipeableRow = (props) => {
-  const { deleteFromFavourites } = useContext(FavouritesProvider.Context)
+interface SwipeableRowProps {
+  item: StockItemObject
+  children: React.ReactNode
+}
+
+const SwipeableRow: React.FC<SwipeableRowProps> = ({ item, children }) => {
+  const { deleteFromFavourites } = useContext(
+    FavouritesProvider.Context
+  ) as ContextType
   const renderRightAction = (
     text: string,
     color: string,
@@ -18,17 +26,12 @@ const SwipeableRow = (props) => {
       inputRange: [0, 1],
       outputRange: [x, 0],
     })
-    const pressHandler = (item) => {
-      // close()
-      // eslint-disable-next-line no-alert
-      deleteFromFavourites(item)
-    }
 
     return (
       <Animated.View style={{ flex: 1, transform: [{ translateX: trans }] }}>
         <RectButton
           style={[styles.rightAction, { backgroundColor: color }]}
-          onPress={() => pressHandler(props.item)}
+          onPress={() => deleteFromFavourites(item)}
         >
           <Text style={styles.actionText}>{text}</Text>
         </RectButton>
@@ -50,24 +53,15 @@ const SwipeableRow = (props) => {
     </View>
   )
 
-  // const swipeableRow?: Swipeable
-
-  // const updateRef = (ref: Swipeable) => {
-  //   swipeableRow = ref
-  // }
-  // const close = () => {
-  //   swipeableRow?.close()
-  // }
   return (
     <Swipeable
-      // ref={updateRef}
       friction={2}
       enableTrackpadTwoFingerGesture
       leftThreshold={30}
       rightThreshold={40}
       renderRightActions={renderRightActions}
     >
-      {props.children}
+      {children}
     </Swipeable>
   )
 }
