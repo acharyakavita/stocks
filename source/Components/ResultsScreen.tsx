@@ -103,7 +103,7 @@ const ResultsDataItem = (props: any) => {
             {item.regularMarketPrice}
           </Text>
           <Currency>{item.currency}</Currency>
-          <Date>{item.previousCloseDate}</Date>
+          {/* <Date>{item.previousCloseDate}</Date> */}
         </RightContainer>
       </ResultItemContainer>
     </TouchableOpacity>

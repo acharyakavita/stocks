@@ -48,7 +48,11 @@ const Currency = styled(Text)`
   font-weight: 300;
 `
 
-const MarketChange = styled(Text)`
+interface MarketChangeProps {
+  price: number
+}
+
+const MarketChange = styled(Text)<MarketChangeProps>`
   color: ${(props) => (props.price < 0 ? '#d93025' : '#188038')};
   font-size: 14px;
   font-weight: 400;
@@ -57,15 +61,16 @@ const MarketChange = styled(Text)`
 const Scroll = styled(ScrollView)`
   max-height: 30px;
   margin: 10px;
-  /* &.active {
-    color: #3eb489;
-  } */
 `
 const Button = styled(TouchableOpacity)`
   padding-right: 20px;
 `
 
-const ButtonText = styled(Text)`
+interface ButtonTextProps {
+  isButtonActive: boolean
+}
+
+const ButtonText = styled(Text)<ButtonTextProps>`
   color: ${(props) => (props.isButtonActive ? 'blue' : 'black')};
   font-weight: ${(props) => (props.isButtonActive ? 600 : 400)};
 `
@@ -158,7 +163,10 @@ const MONTHS = [
   'Dec',
 ]
 
-const formatXLabel = (time, activeTimeRange) => {
+const formatXLabel = (
+  time: number,
+  activeTimeRange: string
+): string | undefined => {
   switch (activeTimeRange) {
     case '1D':
       return format(time * 1000, 'HH:mm')
@@ -175,13 +183,26 @@ const formatXLabel = (time, activeTimeRange) => {
     case '5Y':
     case 'MAX':
       return format(time * 1000, 'yyyy')
+    default:
+      return format(time * 1000, 'HH:mm')
   }
+}
+
+type data = {
+  time: number | undefined
+  price: number | undefined
+}
+
+type ChartData = {
+  data: data[]
+  labelX: string
+  labelY: string
 }
 export default function StockDataScreen({ route }: any) {
   const { stockItem } = route.params
   const { state, isActive } = useChartPressState({ x: 0, y: { price: 0 } })
   const [activeTimeRange, setActiveTimeRange] = useState(RANGE[0])
-  const [chartData, setChartData] = useState({})
+  const [chartData, setChartData] = useState<ChartData>()
   const [isLoading, setIsLoading] = useState(false)
   const font = useFont(inter, 12)
 
@@ -252,23 +273,33 @@ export default function StockDataScreen({ route }: any) {
       .then((response) => response.json())
       .then((data) => {
         if (data && data.chart && data.chart.result && data.chart.result[0]) {
-          const formattedInput = []
-          data.chart.result[0].timestamp.forEach((date, index) => {
-            if (data.chart.result[0].indicators.quote[0].close[index] && date) {
-              const obj = {}
-              obj['time'] = date
-              obj['price'] = parseFloat(
-                data.chart.result[0].indicators.quote[0].close[index].toFixed(2)
-              )
-              formattedInput.push(obj)
+          const formattedInput: data[] = []
+          data.chart.result[0].timestamp.forEach(
+            (date: number, index: number) => {
+              if (
+                data.chart.result[0].indicators.quote[0].close[index] &&
+                date
+              ) {
+                const obj: data = {
+                  time: undefined,
+                  price: undefined,
+                }
+                obj['time'] = date
+                obj['price'] = parseFloat(
+                  data.chart.result[0].indicators.quote[0].close[index].toFixed(
+                    2
+                  )
+                )
+                formattedInput.push(obj)
+              }
             }
-          })
+          )
 
-          const chartDump = {
+          const chartDump: ChartData = {
             data: formattedInput,
             labelX: 'time',
             labelY: 'price',
-            metaData: data.chart.result[0].meta,
+            // metaData: data.chart.result[0].meta,
           }
           setChartData({ ...chartDump })
         }
@@ -316,7 +347,8 @@ export default function StockDataScreen({ route }: any) {
                 labelOffset: { x: 12, y: 8 },
                 labelPosition: { x: 'outset', y: 'inset' },
                 axisSide: { x: 'bottom', y: 'left' },
-                formatXLabel: (time) => formatXLabel(time, activeTimeRange),
+                formatXLabel: (time: number) =>
+                  formatXLabel(time, activeTimeRange),
                 formatYLabel: (v) => `${stockItem.currencySymbol}${v}`,
                 lineColor: '#3EB489',
                 labelColor: 'black',

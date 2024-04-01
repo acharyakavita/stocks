@@ -113,7 +113,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 `https://yfapi.net/v6/finance/quote?symbols=${item}`,
                 {
                   method: 'GET',
-                  headers: { 'X-Api-Key': REACT_APP_YAHOO },
+                  headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
                 }
               )
             })
@@ -149,12 +149,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       const response1 = await fetch(url)
       const data = await response1.json()
       if (data && data.quotes && data.quotes.length) {
-        console.log('search result ', data.quotes)
         const items = data.quotes.map((item: StockSearchItem) => item.symbol)
         const apiCallPromises = items.map((item: string) => {
           return fetch(`https://yfapi.net/v6/finance/quote?symbols=${item}`, {
             method: 'GET',
-            headers: { 'X-Api-Key': REACT_APP_YAHOO },
+            headers: { 'X-Api-Key': REACT_APP_YAHOO2 },
           })
         })
         const response = await Promise.all(apiCallPromises)
@@ -163,7 +162,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           (item) => item.quoteResponse.result[0]
         )
         if (resultInputData.length) {
-          console.log('quote', resultInputData)
           setIsLoading(false)
           setSearchValue('')
           navigation.navigate('Results', { resultInputData })
